@@ -3,17 +3,26 @@
 #include "raymath.h"
 #include <vector>
 
-class Body {
+class Body
+{
 public:
   Vector3 position;
   Quaternion rotation;
   Shape *shape;
   Vector3 linearVelocity;
   float invertedMass; // allows use of (relatively) infinite masses - e.g. Earth
+  // The ratio between an object’s velocity before and after a collision(0 - 1)
+  // 1 = perfectly elastic, <1 = inelastic collision
+  // source: https://research.ncl.ac.uk/game/mastersdegree/gametechnologies/physicstutorials/5collisionresponse/Physics%20-%20Collision%20Response.pdf
+  float restitutionCoefficient;
 
   //   ~Body();
 
-  enum Space { MODEL_SPACE, WORLD_SPACE };
+  enum Space
+  {
+    MODEL_SPACE,
+    WORLD_SPACE
+  };
   Vector3 GetCenterOfMassWorldSpace() const;
   Vector3 GetCenterOfMassModelSpace() const;
 
@@ -23,7 +32,8 @@ public:
   void ApplyLinearImpulse(const Vector3 &impulse);
 };
 
-class Scene {
+class Scene
+{
 public:
   void Initialize();
   //   void AddBody();
@@ -33,7 +43,8 @@ public:
   std::vector<Body> bodies;
 };
 
-struct CollisionPoint {
+struct CollisionPoint
+{
   Vector3 A_WorldSpace;
   Vector3 B_WorldSpace;
 

@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-/usr/bin/clang++ -std=c++11 -g -I/Users/igessess/Desktop/rphysics/rphysics/include -L lib/ -framework CoreVideo -framework IOKit -framework Cocoa -framework GLUT -framework OpenGL lib/libraylib.a *.cpp -o main
+/usr/bin/clang++ -std=c++20 -g -I/Users/igessess/Desktop/rphysics/rphysics/include -L lib/ -framework CoreVideo -framework IOKit -framework Cocoa -framework GLUT -framework OpenGL lib/libraylib.a *.cpp -o main

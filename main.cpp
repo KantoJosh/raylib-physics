@@ -14,19 +14,39 @@
  ********************************************************************************************/
 
 // clang-format off
+#include <memory>
+#include <string>
+#include <stdexcept>
+
 #include "raylib.h"
 #include "physics.h"
 #include "raymath.h"
 // clang-format on
 #include <iostream>
+
+template <typename... Args>
+std::string string_format(const std::string &format, Args... args)
+{
+  int size_s = std::snprintf(nullptr, 0, format.c_str(), args...) + 1; // Extra space for '\0'
+  if (size_s <= 0)
+  {
+    throw std::runtime_error("Error during formatting.");
+  }
+  auto size = static_cast<size_t>(size_s);
+  std::unique_ptr<char[]> buf(new char[size]);
+  std::snprintf(buf.get(), size, format.c_str(), args...);
+  return std::string(buf.get(), buf.get() + size - 1); // We don't want the '\0' inside
+}
+
 //------------------------------------------------------------------------------------
 // Program main entry point
 //------------------------------------------------------------------------------------
-int main(void) {
+int main(void)
+{
   // Initialization
   //--------------------------------------------------------------------------------------
-  const int screenWidth = 800;
-  const int screenHeight = 450;
+  const int screenWidth = 1000;
+  const int screenHeight = 1000;
 
   Scene physicsScene;
   physicsScene.Initialize();
@@ -39,8 +59,8 @@ int main(void) {
   camera.position = (Vector3){10.0f, 10.0f, 10.0f}; // Camera position
   camera.target = (Vector3){0.0f, 0.0f, 0.0f};      // Camera looking at point
   camera.up =
-      (Vector3){0.0f, 1.0f, 0.0f}; // Camera up vector (rotation towards target)
-  camera.fovy = 45.0f;             // Camera field-of-view Y
+      (Vector3){0.0f, 1.0f, 0.0f};        // Camera up vector (rotation towards target)
+  camera.fovy = 45.0f;                    // Camera field-of-view Y
   camera.projection = CAMERA_PERSPECTIVE; // Camera projection type
 
   //   Vector3 cubePosition = {0.0f, 0.0f, 0.0f};
@@ -76,14 +96,15 @@ int main(void) {
     int colorsLength = 3;
     int colorIndex = 0;
 
-    for (auto &body : physicsScene.bodies) {
-      if (body.shape->GetType() == Shape::SPHERE) {
+    int Xpos = 150;
+    int Ypos = 150;
+    for (auto &body : physicsScene.bodies)
+    {
+      if (body.shape->GetType() == Shape::SPHERE)
+      {
         Sphere *sphereShape = dynamic_cast<Sphere *>(body.shape);
-        if (sphereShape != nullptr) {
-          //   std::cout << "HI " << sphereShape->radius << " " <<
-          //   body.position.x
-          //             << " " << body.position.y << " " << body.position.z
-          //             << std::endl;
+        if (sphereShape != nullptr)
+        {
           DrawSphere(body.position, sphereShape->radius, colors[colorIndex]);
           DrawSphereWires(body.position, 2.0f, 2.0f, 2.0f, colors[colorIndex]);
           colorIndex = (colorIndex + 1) % colorsLength;
@@ -107,6 +128,19 @@ int main(void) {
     DrawText("- Alt + Ctrl + Mouse Wheel Pressed for Smooth Zoom", 40, 100, 10,
              DARKGRAY);
     DrawText("- Z to zoom to (0, 0, 0)", 40, 120, 10, DARKGRAY);
+    for (auto &body : physicsScene.bodies)
+    {
+      Sphere *sphereShape = dynamic_cast<Sphere *>(body.shape);
+      if (sphereShape != nullptr)
+      {
+        std::string position = string_format("Position: <X:%.1f, Y:%.1f, Z:%.1f>", body.position.x, body.position.y, body.position.z);
+        DrawText(position.c_str(), Xpos, Ypos, 20, BLACK);
+
+        std::string velocity = string_format("Velocity: <X:%.1f, Y:%.1f, Z:%.1f>", body.linearVelocity.x, body.linearVelocity.y, body.linearVelocity.z);
+        DrawText(velocity.c_str(), Xpos, Ypos + 30, 20, BLACK);
+        Ypos += 60;
+      }
+    }
 
     EndDrawing();
     //----------------------------------------------------------------------------------
